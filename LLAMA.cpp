@@ -10,16 +10,16 @@
 using namespace std;
 
 LLAMA::LLAMA(){}
-LLAMA::LLAMA(int max_id, int m_, int p_, bool in){
+LLAMA::LLAMA(int max_id, int m_, int p_, int v_, int e_, bool in_){
 	snapshots = 0;
-	in_llama = in;
+
+	in_llama = in_;
 	max_sid = max_id;
 	m = m_;
 	num_pages = p_;
 	page_size = pow(2,m);
-
-	//vertices = 4039; edges = 88234;
-	vertices = 4847571; edges = 68993773;
+	vertices = v_; 
+	edges = e_;
 
 	i_tables = new i_table[max_id];
 	e_tables = new e_table[max_id];

@@ -43,7 +43,7 @@ class LLAMA {
 
 	public:
 		LLAMA();
-		LLAMA(int max_id, int m_, int p_, bool in);
+		LLAMA(int max_id, int m_, int p_, int v_, int e_, bool in);
 
 		int vertices, edges;
 		int* deg;
