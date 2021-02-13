@@ -15,6 +15,7 @@ using namespace std;
 const float eps = 1e-4;
 const float damp = 0.85;
 const float beta = 0.8;
+const int snapshots = 10;
 
 /*
 a graph in LLAMA consists of:
@@ -29,8 +30,8 @@ modify page by:
 	change the new page accordingly
  */
 
-LLAMA llama(1, 10, 4800, true);
-//LLAMA llama(1, 5, 128, true);
+LLAMA llama(snapshots, 10, 4800, true);
+//LLAMA llama(snapshots, 5, 128, true);
 
 vector<float> compute_PR(){
 	float N = llama.vertices;
@@ -53,6 +54,7 @@ vector<float> compute_PR(){
 			for(auto v: neigh){
 				in_total += out[v];
 			}
+			if (isnan(in_total) != 0){cout << id << endl;}
 			float old = pr[id];
 			pr[id] = base + beta*in_total;
 			diff += fabs(pr[id] - old);
@@ -69,8 +71,8 @@ int main(void){
 
 	llama.read("soc-LiveJournal1.txt");
 	//llama.read("facebook_combined.txt");
-	int id = llama.load();
-	//llama.print_(id);
+	llama.set(10);
+	//llama.print_(10);
 
 
 	struct timeval start,end;
@@ -90,6 +92,6 @@ int main(void){
 	for (int i=0; i<pr.size(); i++){
 		sum += pr[i];
 	}cout << "SUM: " << sum << endl;
-
+	
 	return 0;
 }

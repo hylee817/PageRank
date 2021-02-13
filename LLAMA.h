@@ -13,8 +13,6 @@ typedef struct _vertex{
 }vertex;
 
 typedef vertex* page; //arr. of vertices
-//typedef page* pagePtr;
-//typedef pagePtr* i_table; //arr. of page ptrs.
 typedef page* i_table;
 typedef int* e_table; //adj. list
 
@@ -41,7 +39,7 @@ class LLAMA {
 
 		void add(int from, int to);
 		int create_snapshot();
-		pair<uint, uint> convert(int vid);
+		pair<uint32_t, uint32_t> convert(int vid);
 
 	public:
 		LLAMA();
@@ -51,9 +49,10 @@ class LLAMA {
 		int* deg;
 
 		void read(string fname);
+		void set(int sid);
 		void print_(int sid);
 
-		int load();
+		int load(int edges_in_snapshot);
 
 		vector<int> neighbors(int vid);
 	
