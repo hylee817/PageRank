@@ -1,16 +1,9 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include "vertex.h"
 
 using namespace std;
-
-typedef struct _vertex{
-	//uint64_t sid_len;	// 12 - 52 bit
-	//uint64_t offset;	//edge table idx
-	int sid;
-	int len;
-	int offset;
-}vertex;
 
 typedef vertex* page; //arr. of vertices
 typedef page* i_table;

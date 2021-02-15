@@ -101,32 +101,37 @@ int LLAMA::load(int edges_in_snapshot){ //load a single snapshot
 			//copy page (deep copy)
 			page new_page = new vertex[page_size];
 			for (int i=0;i<page_size;i++){
-				new_page[i].sid = i_tables[sid][pg][i].sid;
-				new_page[i].len = i_tables[sid][pg][i].len;
-				new_page[i].offset = i_tables[sid][pg][i].offset;
+				vertex old = i_tables[sid][pg][i];
+				new_page[i].set(old.sid(), old.len(), old.offset());
+				//new_page[i].sid = i_tables[sid][pg][i].sid();
+				//new_page[i].len = i_tables[sid][pg][i].len();
+				//new_page[i].offset = i_tables[sid][pg][i].offset();
+
 			}
 			//update indirection array to point new page
 			i_tables[sid][pg] = new_page;
 			}prev_pg = pg;
 
 			//update page info
-			i_tables[sid][pg][ent].sid = sid;
-			i_tables[sid][pg][ent].offset = e_iter;
-			i_tables[sid][pg][ent].len =  prev.len + tmp[vid].size();
+			i_tables[sid][pg][ent].set(sid, prev.len() + tmp[vid].size(), e_iter);
+			//i_tables[sid][pg][ent].sid = sid;
+			//i_tables[sid][pg][ent].offset = e_iter;
+			//i_tables[sid][pg][ent].len =  prev.len + tmp[vid].size();
 
 
 			//update edge table
 			for (int i=0;i<tmp[vid].size();i++){
 				e_tables[sid][e_iter++] = tmp[vid][i];
 			}//add continuation record
-			e_tables[sid][e_iter++] = -prev.sid;
-			e_tables[sid][e_iter++] = prev.offset;
+			e_tables[sid][e_iter++] = -prev.sid();
+			e_tables[sid][e_iter++] = prev.offset();
 		}
 		else{
 			//update vertex info
-			i_tables[sid][pg][ent].sid = sid;
-			i_tables[sid][pg][ent].offset = e_iter;
-			i_tables[sid][pg][ent].len = tmp[vid].size();
+			i_tables[sid][pg][ent].set(sid, tmp[vid].size(), e_iter);
+			//i_tables[sid][pg][ent].sid = sid;
+			//i_tables[sid][pg][ent].offset = e_iter;
+			//i_tables[sid][pg][ent].len = tmp[vid].size();
 
 			//update edge info
 			for (int i=0;i<tmp[vid].size();i++){
@@ -172,15 +177,14 @@ vector<int> LLAMA::neighbors(int vid){
 	uint32_t ent = converted.second;
 
 	vertex cur = i_tables[target_sid][pg][ent];
-	int sid = cur.sid;
-	int offset = cur.offset;
+	uint32_t sid = cur.sid();
+	uint64_t offset = cur.offset();
 
 	vector<int> neigh;
 
 	int i = 0; int ctr = 0;
-	while (ctr < cur.len){
+	while (ctr < cur.len()){
 		int val = e_tables[sid][offset+i];
-		//cout << val << ", ";
 		if (val < 0){ //snapshot, offset
 			offset = e_tables[sid][offset+i+1];
 			sid = -val;
@@ -189,7 +193,7 @@ vector<int> LLAMA::neighbors(int vid){
 		}
 		neigh.push_back(val);
 		i += 1; ctr += 1;
-	}//cout << endl;
+	}
 
 	return neigh;
 }
