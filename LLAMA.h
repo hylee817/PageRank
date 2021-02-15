@@ -16,15 +16,16 @@ typedef vertex* page; //arr. of vertices
 typedef page* i_table;
 typedef int* e_table; //adj. list
 
-typedef unsigned int uint;
 
 class LLAMA {
 
 	private:
 		bool in_llama;
 
-		int snapshots; //current snapshot ID
-		int max_sid;
+		int cur_sid; //current snapshot
+		int target_sid; //target snapshot
+		int max_sid;   //max snspshot id
+
 		int m;
 		int num_pages;
 		int page_size;
@@ -43,13 +44,12 @@ class LLAMA {
 
 	public:
 		LLAMA();
-		LLAMA(int max_id, int m_, int p_, int v_, int e_, bool in);
+		LLAMA(int max_id, int target_, int m_, int p_, int v_, int e_, bool in);
 
 		int vertices, edges;
 		int* deg;
 
 		void read(string fname);
-		void set(int sid);
 		void print_(int sid);
 
 		int load(int edges_in_snapshot);

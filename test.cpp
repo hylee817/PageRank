@@ -71,7 +71,7 @@ int main(int argc, char* argv[]){
 
 	string _fname;
 	int _m, _p, _v, _e, _max, _id;
-	bool _in;
+	bool _in=true;
 
 	/*
 	for (int i=0; i<argc; i++){
@@ -111,9 +111,8 @@ int main(int argc, char* argv[]){
 	cout << "snapshot to run page rank on: ";
 	cin >> _id;
 
-	LLAMA llama(_max, _m, _p, _v, _e, _in);
+	LLAMA llama(_max,_id, _m, _p, _v, _e, _in);
 	llama.read(_fname);
-	llama.set(_id);
 
 	struct timeval start,end;
 	long secs_used, micros_used;

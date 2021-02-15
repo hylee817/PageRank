@@ -10,16 +10,18 @@
 using namespace std;
 
 LLAMA::LLAMA(){}
-LLAMA::LLAMA(int max_id, int m_, int p_, int v_, int e_, bool in_){
-	snapshots = 0;
-
-	in_llama = in_;
+LLAMA::LLAMA(int max_id, int target_, int m_, int p_, int v_, int e_, bool in_){
+	cur_sid = 0;
+	target_sid = target_;
 	max_sid = max_id;
+
 	m = m_;
 	num_pages = p_;
 	page_size = pow(2,m);
 	vertices = v_; 
 	edges = e_;
+
+	in_llama = in_;
 
 	i_tables = new i_table[max_id];
 	e_tables = new e_table[max_id];
@@ -61,11 +63,11 @@ void LLAMA::read(string fname){
 
 		  if (in_llama){
 			  tmp[to].push_back(from);
-			  deg[from] += 1; //outgoing degree
+			  if(cur_sid < target_sid) {deg[from] += 1;} //outgoing degree
 		  }
 		  else{
 			  tmp[from].push_back(to);
-			  deg[to] += 1; //incoming degree
+			  if(cur_sid < target_sid) {deg[to] += 1;} //incoming degree
 		  }
 		  global_iter += 1;
 		  local_iter += 1;
@@ -111,7 +113,6 @@ int LLAMA::load(int edges_in_snapshot){ //load a single snapshot
 			i_tables[sid][pg][ent].sid = sid;
 			i_tables[sid][pg][ent].offset = e_iter;
 			i_tables[sid][pg][ent].len =  prev.len + tmp[vid].size();
-			//cout << sid << ", " << e_iter << ", " << tmp[vid].size() << endl;
 
 
 			//update edge table
@@ -126,7 +127,6 @@ int LLAMA::load(int edges_in_snapshot){ //load a single snapshot
 			i_tables[sid][pg][ent].sid = sid;
 			i_tables[sid][pg][ent].offset = e_iter;
 			i_tables[sid][pg][ent].len = tmp[vid].size();
-			//cout << sid << ", " << e_iter << ", " << tmp[vid].size() << endl;
 
 			//update edge info
 			for (int i=0;i<tmp[vid].size();i++){
@@ -142,27 +142,27 @@ int LLAMA::load(int edges_in_snapshot){ //load a single snapshot
 //todo: if empty snapshot  -> pt to prev. i_table
 int LLAMA::create_snapshot(){
 
-	i_tables[snapshots+1] = new page[num_pages];
+	i_tables[cur_sid+1] = new page[num_pages];
 
-	if (snapshots > 0){
+	if (cur_sid > 0){
 		cout << "Copying previous indirection array..." << endl;
 		//copy prev. indirection table
 		for (int i=0;i<num_pages;i++){
-			i_tables[snapshots+1][i] = i_tables[snapshots][i];
+			i_tables[cur_sid+1][i] = i_tables[cur_sid][i];
 		}
 	}
 	else{
 		cout << "Loading first snapshot..." << endl;
 		//first load (create all structures)
-		e_tables[snapshots+1] = new int[edges];
-		i_tables[snapshots+1] = new page[num_pages];
+		e_tables[cur_sid+1] = new int[edges];
+		i_tables[cur_sid+1] = new page[num_pages];
 		for (int i=0;i<num_pages;i++){
 			page new_page = new vertex[page_size];
-			i_tables[snapshots+1][i] = new_page;
+			i_tables[cur_sid+1][i] = new_page;
 		}
 	}
-	snapshots += 1;
-	return snapshots;
+	cur_sid += 1;
+	return cur_sid;
 }
 
 vector<int> LLAMA::neighbors(int vid){
@@ -171,10 +171,9 @@ vector<int> LLAMA::neighbors(int vid){
 	uint32_t pg = converted.first;
 	uint32_t ent = converted.second;
 
-	vertex cur = i_tables[snapshots][pg][ent];
+	vertex cur = i_tables[target_sid][pg][ent];
 	int sid = cur.sid;
 	int offset = cur.offset;
-	//cout << "id[" << vid << "]: ";
 
 	vector<int> neigh;
 
@@ -203,10 +202,6 @@ pair<uint32_t, uint32_t> LLAMA::convert(int vid){
 	uint32_t ent = vt_idx & ((1 << m) -1);
 
 	return make_pair(pg, ent);
-}
-
-void LLAMA::set(int sid){
-	snapshots = sid;
 }
 
 void LLAMA::print_(int sid){
